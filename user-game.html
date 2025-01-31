@@ -9,14 +9,23 @@
 </head>
 <body>
 <div class="container text-center my-5">
-  <h1>Welcome, <span id="user-name"></span></h1>
-  <p>Coins: <span id="user-balance">0</span></p>
+  <h1 class="text-light">Welcome, <span id="user-name"></span></h1>
+  <p class="text-warning">Coins: <span id="user-balance">0</span></p>
 
   <!-- Action Buttons -->
   <div class="d-flex justify-content-center gap-3 mt-4">
-    <button id="withdraw-request" class="btn btn-warning">Request Withdrawal</button>
+    <button id="withdraw-request-btn" class="btn btn-warning">Request Withdrawal</button>
     <button id="purchase-coins" class="btn btn-success">Purchase Coins</button>
     <button id="logout-btn" class="btn btn-danger">Logout</button>
+  </div>
+
+  <!-- Withdrawal Form -->
+  <div id="withdraw-form" class="mt-4 hidden">
+    <h3 class="text-light">Request Withdrawal</h3>
+    <p class="text-light">Maximum Withdrawal: <span id="max-withdraw"></span> coins</p>
+    <input type="number" id="withdraw-amount" class="form-control my-2" placeholder="Enter amount to withdraw">
+    <button id="submit-withdraw" class="btn btn-warning">Submit Withdrawal</button>
+    <p id="withdraw-feedback" class="text-success mt-2"></p>
   </div>
 
   <!-- Game Board -->

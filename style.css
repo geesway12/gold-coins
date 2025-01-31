@@ -1,21 +1,25 @@
+/* General body styles */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f8f9fa;
-  color: #333;
+  background-color: #333; /* Dark grey background */
+  color: #fff;
   text-align: center;
 }
 
+/* Container for central alignment */
 .container {
   max-width: 600px;
   margin: auto;
   padding: 20px;
 }
 
+/* Title and text */
 .title {
   font-size: 24px;
   margin-bottom: 20px;
+  color: #ffc107; /* Gold color for titles */
 }
 
 .section {
@@ -26,25 +30,68 @@ body {
   display: none;
 }
 
+/* Game Board Styles */
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(6, 1fr); /* 6 columns */
+  gap: 15px; /* Spacing between coins */
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .grid-container .square {
   width: 100%;
-  aspect-ratio: 1;
-  background-color: #f1f1f1;
-  border: 1px solid #ccc;
+  aspect-ratio: 1; /* Ensures squares are equal-sized */
+  background-color: gold; /* Gold coins */
+  border-radius: 50%; /* Make coins circular */
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5); /* Add depth to coins */
   cursor: pointer;
-  transition: transform 0.2s;
+  font-weight: bold;
+  color: #333;
+  font-size: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .grid-container .square:hover {
-  transform: scale(1.05);
-  background-color: #ddd;
+  transform: scale(1.1); /* Slightly enlarge on hover */
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.7);
+}
+
+.grid-container .square.revealed {
+  background-color: #444; /* Dark color for revealed squares */
+  color: #fff; /* Text color for revealed squares */
+  cursor: not-allowed;
+  box-shadow: none; /* Remove shadow on reveal */
+}
+
+.grid-container .square.revealed.win {
+  background-color: #28a745; /* Green for winning */
+}
+
+.grid-container .square.revealed.bomb {
+  background-color: #dc3545; /* Red for bombs */
+}
+
+.grid-container .square.revealed.lose,
+.grid-container .square.revealed.donate {
+  background-color: #ffc107; /* Yellow for lose or donate */
+}
+
+/* Animate balance addition */
+@keyframes balance-add {
+  0% {
+    transform: scale(1.2);
+    color: #28a745; /* Green flash */
+  }
+  100% {
+    transform: scale(1);
+    color: #ffc107; /* Back to gold */
+  }
+}
+
+#user-balance {
+  transition: color 0.3s ease, transform 0.3s ease;
 }
