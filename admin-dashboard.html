@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container my-5">
+  <h1 class="mb-4">Admin Dashboard</h1>
+
+  <!-- Register New User -->
+  <h2>Register New User</h2>
+  <div class="mb-3">
+    <input type="text" id="full-name" class="form-control" placeholder="Full Name">
+  </div>
+  <button id="register-btn" class="btn btn-primary">Generate User Code</button>
+  <p id="register-feedback" class="text-success mt-3"></p>
+
+  <!-- Add Coins to User -->
+  <h2 class="mt-4">Add Coins to User</h2>
+  <div class="mb-3">
+    <input type="text" id="add-coins-user-code" class="form-control" placeholder="User Code">
+  </div>
+  <div class="mb-3">
+    <input type="number" id="add-coins-amount" class="form-control" placeholder="Amount">
+  </div>
+  <button id="add-coins" class="btn btn-success">Add Coins</button>
+  <p id="add-coins-feedback" class="text-success mt-3"></p>
+
+  <!-- View Withdrawal Requests -->
+  <h2 class="mt-4">View Withdrawal Requests</h2>
+  <button id="view-withdrawals" class="btn btn-info">View Requests</button>
+  <div id="withdrawal-list" class="mt-3"></div>
+
+  <!-- Logout -->
+  <button id="logout-admin" class="btn btn-danger mt-4">Logout</button>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
