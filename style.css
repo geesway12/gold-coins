@@ -8,18 +8,18 @@ body {
   text-align: center;
 }
 
-/* Container for central alignment */
+/* Central alignment container */
 .container {
   max-width: 600px;
   margin: auto;
   padding: 20px;
 }
 
-/* Title and text */
+/* Titles and highlights */
 .title {
   font-size: 24px;
   margin-bottom: 20px;
-  color: #ffc107; /* Gold color for titles */
+  color: #ffc107; /* Gold for titles */
 }
 
 .section {
@@ -33,7 +33,7 @@ body {
 /* Game Board Styles */
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* 6 columns */
+  grid-template-columns: repeat(6, 1fr); /* 6 columns for coins */
   gap: 15px; /* Spacing between coins */
   justify-content: center;
   margin-top: 20px;
@@ -41,43 +41,48 @@ body {
 
 .grid-container .square {
   width: 100%;
-  aspect-ratio: 1; /* Ensures squares are equal-sized */
-  background-color: gold; /* Gold coins */
-  border-radius: 50%; /* Make coins circular */
+  aspect-ratio: 1; /* Ensures square size */
+  background-color: gold; /* Default gold coin */
+  border-radius: 50%; /* Circular coins */
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5); /* Add depth to coins */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5); /* Depth effect */
   cursor: pointer;
   font-weight: bold;
-  color: #333;
+  color: #333; /* Dark text for unrevealed coins */
   font-size: 1.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
 }
 
+/* Hover effect on unrevealed coins */
 .grid-container .square:hover {
-  transform: scale(1.1); /* Slightly enlarge on hover */
+  transform: scale(1.1); /* Enlarge slightly */
   box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.7);
 }
 
+/* Revealed coins styles */
 .grid-container .square.revealed {
-  background-color: #444; /* Dark color for revealed squares */
-  color: #fff; /* Text color for revealed squares */
+  background-color: #444; /* Dark for revealed */
+  color: #fff; /* Text for revealed */
   cursor: not-allowed;
-  box-shadow: none; /* Remove shadow on reveal */
+  box-shadow: none; /* Remove shadow */
 }
 
 .grid-container .square.revealed.win {
   background-color: #28a745; /* Green for winning */
+  color: #fff;
 }
 
 .grid-container .square.revealed.bomb {
   background-color: #dc3545; /* Red for bombs */
+  color: #fff;
 }
 
 .grid-container .square.revealed.lose,
 .grid-container .square.revealed.donate {
   background-color: #ffc107; /* Yellow for lose or donate */
+  color: #333;
 }
 
 /* Animate balance addition */
@@ -92,6 +97,29 @@ body {
   }
 }
 
+/* Balance display animation */
 #user-balance {
   transition: color 0.3s ease, transform 0.3s ease;
+}
+
+/* Withdrawal form styling */
+input[type="number"],
+button {
+  font-size: 1rem;
+  border-radius: 5px;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Buttons styling */
+.btn-primary {
+  background-color: #ffc107; /* Gold */
+  border-color: #ffc107;
+}
+
+.btn-primary:hover {
+  background-color: #d39e00;
+  border-color: #d39e00;
 }

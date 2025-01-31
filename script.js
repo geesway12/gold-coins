@@ -26,224 +26,187 @@ function generateUserID() {
 
 // Wrap logic in DOMContentLoaded to ensure elements are loaded
 document.addEventListener("DOMContentLoaded", () => {
+  const currentPage = window.location.pathname;
+
   // === Admin Login ===
-  const adminLoginButton = document.getElementById("admin-login-btn");
-  if (adminLoginButton) {
-    adminLoginButton.addEventListener("click", () => {
-      const username = document.getElementById("admin-username").value.trim();
-      const password = document.getElementById("admin-password").value.trim();
-      const credentials = JSON.parse(localStorage.getItem(ADMIN_CREDENTIALS_KEY));
+  if (currentPage.includes("admin-login.html")) {
+    const adminLoginButton = document.getElementById("admin-login-btn");
+    if (adminLoginButton) {
+      adminLoginButton.addEventListener("click", () => {
+        const username = document.getElementById("admin-username").value.trim();
+        const password = document.getElementById("admin-password").value.trim();
+        const credentials = JSON.parse(localStorage.getItem(ADMIN_CREDENTIALS_KEY));
 
-      if (credentials.username === username && credentials.password === password) {
-        window.location.href = "admin-dashboard.html"; // Redirect to admin dashboard
-      } else {
-        document.getElementById("admin-login-feedback").textContent = "Invalid username or password.";
-      }
-    });
-  }
-
-  // === Register a New User (Admin Feature) ===
-  const registerButton = document.getElementById("register-btn");
-  if (registerButton) {
-    registerButton.addEventListener("click", () => {
-      const fullName = document.getElementById("full-name").value.trim();
-      if (!fullName) {
-        document.getElementById("register-feedback").textContent = "Please enter a valid name.";
-        return;
-      }
-
-      const users = getFromStorage(USERS_KEY);
-      const userID = generateUserID(); // Generate a random user ID
-      users.push({ userID, name: fullName, balance: 0 });
-      saveToStorage(USERS_KEY, users);
-
-      document.getElementById("register-feedback").textContent = `User registered! ID: ${userID}`;
-      document.getElementById("full-name").value = ""; // Clear input field
-    });
-  }
-
-  // === Add Coins to a User (Admin Feature) ===
-  const addCoinsButton = document.getElementById("add-coins");
-  if (addCoinsButton) {
-    addCoinsButton.addEventListener("click", () => {
-      const userID = document.getElementById("add-coins-user-code").value.trim();
-      const amount = parseInt(document.getElementById("add-coins-amount").value, 10);
-      const users = getFromStorage(USERS_KEY);
-      const user = users.find((u) => u.userID === userID);
-
-      if (!user || isNaN(amount) || amount <= 0) {
-        document.getElementById("add-coins-feedback").textContent = "Invalid user ID or amount.";
-        return;
-      }
-
-      user.balance += amount;
-      saveToStorage(USERS_KEY, users);
-
-      document.getElementById("add-coins-feedback").textContent = `Added ${amount} coins to ${userID}.`;
-      document.getElementById("add-coins-user-code").value = ""; // Clear input fields
-      document.getElementById("add-coins-amount").value = "";
-    });
-  }
-
-  // === View Withdrawal Requests (Admin Feature) ===
-  const viewWithdrawalsButton = document.getElementById("view-withdrawals");
-  if (viewWithdrawalsButton) {
-    viewWithdrawalsButton.addEventListener("click", () => {
-      const withdrawals = getFromStorage(TRANSACTIONS_KEY).filter((t) => t.type === "Withdrawal");
-      const withdrawalList = document.getElementById("withdrawal-list");
-      withdrawalList.innerHTML = withdrawals.length
-        ? withdrawals.map((t) => `<p>${t.userID}: ${t.amount} coins</p>`).join("")
-        : "<p>No withdrawal requests.</p>";
-    });
-  }
-
-  // === View Coin Purchase Requests (Admin Feature) ===
-  const viewPurchaseRequestsButton = document.getElementById("view-purchase-requests");
-  if (viewPurchaseRequestsButton) {
-    viewPurchaseRequestsButton.addEventListener("click", () => {
-      const purchaseRequests = getFromStorage(PURCHASE_REQUESTS_KEY);
-      const requestList = document.getElementById("purchase-request-list");
-      requestList.innerHTML = purchaseRequests.length
-        ? purchaseRequests
-            .map(
-              (r, index) =>
-                `<p>${r.userID} requested ${r.amount} coins 
-                  <button class="btn btn-success btn-sm" onclick="approvePurchase(${index})">Approve</button>
-                  <button class="btn btn-danger btn-sm" onclick="declinePurchase(${index})">Decline</button>
-                </p>`
-            )
-            .join("")
-        : "<p>No purchase requests.</p>";
-    });
-  }
-
-  // === Approve a Coin Purchase (Admin Feature) ===
-  window.approvePurchase = (index) => {
-    const purchaseRequests = getFromStorage(PURCHASE_REQUESTS_KEY);
-    const request = purchaseRequests[index];
-    const users = getFromStorage(USERS_KEY);
-    const user = users.find((u) => u.userID === request.userID);
-
-    if (user) {
-      user.balance += request.amount;
-      saveToStorage(USERS_KEY, users);
-      purchaseRequests.splice(index, 1);
-      saveToStorage(PURCHASE_REQUESTS_KEY, purchaseRequests);
-      alert(`Approved ${request.amount} coins for ${request.userID}.`);
-      document.getElementById("view-purchase-requests").click(); // Refresh the request list
-    }
-  };
-
-  // === Decline a Coin Purchase (Admin Feature) ===
-  window.declinePurchase = (index) => {
-    const purchaseRequests = getFromStorage(PURCHASE_REQUESTS_KEY);
-    purchaseRequests.splice(index, 1);
-    saveToStorage(PURCHASE_REQUESTS_KEY, purchaseRequests);
-    alert("Purchase request declined.");
-    document.getElementById("view-purchase-requests").click(); // Refresh the request list
-  };
-
-  // === User Login ===
-  const userLoginButton = document.getElementById("login-btn");
-  if (userLoginButton) {
-    userLoginButton.addEventListener("click", () => {
-      const userID = document.getElementById("login-code").value.trim();
-      const users = getFromStorage(USERS_KEY);
-      const user = users.find((u) => u.userID === userID);
-
-      if (!user) {
-        document.getElementById("login-feedback").textContent = "Invalid user ID.";
-        return;
-      }
-
-      // Store current user session
-      localStorage.setItem("current_user", JSON.stringify(user));
-
-      // Redirect to game page
-      window.location.href = "user-game.html";
-    });
-  }
-
-  // === Initialize Game Page for Logged-in User ===
-  if (document.getElementById("user-name")) {
-    const user = JSON.parse(localStorage.getItem("current_user"));
-    if (!user) {
-      // Redirect to login if no user session exists
-      window.location.href = "user-login.html";
-    } else {
-      // Display user details on the game page
-      document.getElementById("user-name").textContent = user.name;
-      document.getElementById("user-balance").textContent = user.balance;
-
-      // Handle Purchase Coins button
-      const purchaseCoinsButton = document.getElementById("purchase-coins");
-      purchaseCoinsButton.addEventListener("click", () => {
-        const amount = prompt("Enter the number of coins to purchase:");
-        if (amount && amount > 0) {
-          const purchaseRequests = getFromStorage(PURCHASE_REQUESTS_KEY);
-          purchaseRequests.push({ userID: user.userID, amount: parseInt(amount, 10) });
-          saveToStorage(PURCHASE_REQUESTS_KEY, purchaseRequests);
-          alert("Purchase request submitted!");
+        if (credentials.username === username && credentials.password === password) {
+          window.location.href = "admin-dashboard.html"; // Redirect to admin dashboard
         } else {
-          alert("Invalid amount.");
+          document.getElementById("admin-login-feedback").textContent = "Invalid username or password.";
         }
       });
-
-      // Generate the game grid
-      generateGameGrid(user);
     }
   }
 
-  // === Logout User ===
-  const logoutUserButton = document.getElementById("logout-btn");
-  if (logoutUserButton) {
-    logoutUserButton.addEventListener("click", () => {
-      localStorage.removeItem("current_user"); // Clear user session
-      window.location.href = "user-login.html"; // Redirect to user login
-    });
+  // === User Login ===
+  if (currentPage.includes("user-login.html")) {
+    const loginButton = document.getElementById("login-btn");
+    if (loginButton) {
+      loginButton.addEventListener("click", () => {
+        const loginCode = document.getElementById("login-code").value.trim();
+        const users = getFromStorage(USERS_KEY);
+        const user = users.find((u) => u.userID === loginCode);
+
+        if (user) {
+          // Save user session
+          localStorage.setItem("current_user", JSON.stringify(user));
+          // Redirect to the user game page
+          window.location.href = "user-game.html";
+        } else {
+          document.getElementById("login-feedback").textContent = "Invalid User Code.";
+        }
+      });
+    }
   }
 
-  // === Generate Game Grid ===
-  function generateGameGrid(user) {
+  // === Admin Dashboard ===
+  if (currentPage.includes("admin-dashboard.html")) {
+    const registerButton = document.getElementById("register-btn");
+    const addCoinsButton = document.getElementById("add-coins");
+    const viewWithdrawalsButton = document.getElementById("view-withdrawals");
+
+    // Register New User
+    if (registerButton) {
+      registerButton.addEventListener("click", () => {
+        const fullName = document.getElementById("full-name").value.trim();
+        if (!fullName) {
+          document.getElementById("register-feedback").textContent = "Please enter a valid name.";
+          return;
+        }
+
+        const users = getFromStorage(USERS_KEY);
+        const userID = generateUserID();
+        users.push({ userID, name: fullName, balance: 0 });
+        saveToStorage(USERS_KEY, users);
+
+        document.getElementById("register-feedback").textContent = `User registered! ID: ${userID}`;
+        document.getElementById("full-name").value = "";
+      });
+    }
+
+    // Add Coins to User
+    if (addCoinsButton) {
+      addCoinsButton.addEventListener("click", () => {
+        const userID = document.getElementById("add-coins-user-code").value.trim();
+        const amount = parseInt(document.getElementById("add-coins-amount").value, 10);
+        const users = getFromStorage(USERS_KEY);
+        const user = users.find((u) => u.userID === userID);
+
+        if (!user || isNaN(amount) || amount <= 0) {
+          document.getElementById("add-coins-feedback").textContent = "Invalid user ID or amount.";
+          return;
+        }
+
+        user.balance += amount;
+        saveToStorage(USERS_KEY, users);
+
+        document.getElementById("add-coins-feedback").textContent = `Added ${amount} coins to ${userID}.`;
+        document.getElementById("add-coins-user-code").value = "";
+        document.getElementById("add-coins-amount").value = "";
+      });
+    }
+
+    // View Withdrawal Requests
+    if (viewWithdrawalsButton) {
+      viewWithdrawalsButton.addEventListener("click", () => {
+        const withdrawals = getFromStorage(TRANSACTIONS_KEY).filter((t) => t.type === "Withdrawal");
+        const withdrawalList = document.getElementById("withdrawal-list");
+        withdrawalList.innerHTML = withdrawals.length
+          ? withdrawals
+              .map(
+                (t, index) =>
+                  `<p>${t.userID} requested ${t.amount} coins 
+                    <button class="btn btn-success btn-sm" onclick="approveWithdrawal(${index})">Approve</button>
+                    <button class="btn btn-danger btn-sm" onclick="declineWithdrawal(${index})">Decline</button>
+                  </p>`
+              )
+              .join("")
+          : "<p>No withdrawal requests.</p>";
+      });
+    }
+
+    // Approve/Decline Withdrawal Requests
+    window.approveWithdrawal = (index) => {
+      const withdrawals = getFromStorage(TRANSACTIONS_KEY).filter((t) => t.type === "Withdrawal");
+      withdrawals.splice(index, 1);
+      saveToStorage(TRANSACTIONS_KEY, withdrawals);
+      alert("Withdrawal approved.");
+      document.getElementById("view-withdrawals").click();
+    };
+
+    window.declineWithdrawal = (index) => {
+      const withdrawals = getFromStorage(TRANSACTIONS_KEY).filter((t) => t.type === "Withdrawal");
+      withdrawals.splice(index, 1);
+      saveToStorage(TRANSACTIONS_KEY, withdrawals);
+      alert("Withdrawal declined.");
+      document.getElementById("view-withdrawals").click();
+    };
+
+    // Logout
+    const logoutAdminButton = document.getElementById("logout-admin");
+    if (logoutAdminButton) {
+      logoutAdminButton.addEventListener("click", function () {
+        window.location.href = "index.html";
+      });
+    }
+  }
+
+  // === User Game ===
+  if (currentPage.includes("user-game.html")) {
+    const currentUser = JSON.parse(localStorage.getItem("current_user"));
+
+    if (!currentUser) {
+      window.location.href = "user-login.html";
+      return;
+    }
+
+    document.getElementById("user-name").textContent = currentUser.name;
+    document.getElementById("user-balance").textContent = `${currentUser.balance} Coins`;
+
     const gameBoard = document.getElementById("game-board");
-    gameBoard.innerHTML = ""; // Clear existing grid
 
-    for (let i = 0; i < 36; i++) {
-      const square = document.createElement("div");
-      square.classList.add("square");
-      square.textContent = "?";
-      square.addEventListener("click", () => revealSquare(square, user));
-      gameBoard.appendChild(square);
+    function initializeGameBoard() {
+      gameBoard.innerHTML = "";
+      const outcomes = generateGameOutcomes();
+      outcomes.forEach((outcome) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.type = outcome.type;
+        card.dataset.value = outcome.value;
+
+        card.addEventListener("click", () => {
+          if (!card.classList.contains("revealed") && currentUser.balance >= 10) {
+            currentUser.balance -= 10;
+            card.classList.add("revealed");
+            card.textContent = outcome.value;
+
+            if (outcome.type === "Win") currentUser.balance += outcome.value;
+            else if (outcome.type === "Lose" || outcome.type === "Donate") currentUser.balance -= outcome.value;
+
+            currentUser.balance = Math.max(0, currentUser.balance); // Prevent negative balance
+
+            localStorage.setItem("current_user", JSON.stringify(currentUser));
+            document.getElementById("user-balance").textContent = `${currentUser.balance} Coins`;
+
+            if (currentUser.balance <= 10) {
+              alert("Low balance! Please purchase coins to continue.");
+            }
+          }
+        });
+
+        gameBoard.appendChild(card);
+      });
     }
+
+    initializeGameBoard();
   }
-
-  // === Reveal a Square ===
-  function revealSquare(square, user) {
-    if (square.classList.contains("revealed")) return;
-
-    const outcomes = [
-      { type: "Win", value: getRandomValue(10, 1000, 100) },
-      { type: "Lose", value: getRandomValue(10, 1000, 100) },
-      { type: "Donate", value: getRandomValue(10, 1000, 100) },
-      { type: "Bomb", value: 0 }
-    ];
-
-    const outcome = outcomes[Math.floor(Math.random() * outcomes.length)];
-    square.classList.add("revealed");
-    square.textContent = outcome.type === "Bomb" ? "💣 Bomb!" : `${outcome.type} ${outcome.value}`;
-
-    if (outcome.type === "Win") {
-      user.balance += outcome.value;
-    } else if (outcome.type === "Lose" || outcome.type === "Donate") {
-      user.balance -= outcome.value;
-    }
-    saveToStorage("current_user", user);
-    document.getElementById("user-balance").textContent = user.balance;
-  }
-
-  // Generate a random value with intervals
-  function getRandomValue(min, max, step) {
-    const range = Math.floor((max - min) / step) + 1;
-    return Math.floor(Math.random() * range) * step + min;
-  }
+  
 });

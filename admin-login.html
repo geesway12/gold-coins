@@ -5,20 +5,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 400px;
+      margin-top: 10%;
+      background-color: #1e1e1e;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+    }
+    .btn-dark {
+      background-color: #000000;
+      border: none;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    .btn-dark:hover {
+      background-color: #333333;
+    }
+    .text-danger {
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
-<div class="container text-center my-5">
+<div class="container text-center">
   <h1 class="mb-4">Admin Login</h1>
   <div class="mb-3">
-    <input type="text" id="admin-username" class="form-control" placeholder="Username">
+    <input type="text" id="admin-username" class="form-control" placeholder="Username" required>
   </div>
   <div class="mb-3">
-    <input type="password" id="admin-password" class="form-control" placeholder="Password">
+    <input type="password" id="admin-password" class="form-control" placeholder="Password" required>
   </div>
-  <button id="admin-login-btn" class="btn btn-dark btn-lg">Login</button>
+  <button id="admin-login-btn" class="btn btn-dark btn-lg w-100">Login</button>
   <p id="admin-login-feedback" class="text-danger mt-3"></p>
 </div>
-<script src="script.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Initialize admin credentials if not set
+    if (!localStorage.getItem("admin_credentials")) {
+      const defaultCredentials = { username: "admin", password: "admin123" };
+      localStorage.setItem("admin_credentials", JSON.stringify(defaultCredentials));
+    }
+
+    // Add event listener for the login button
+    document.getElementById("admin-login-btn").addEventListener("click", () => {
+      const username = document.getElementById("admin-username").value.trim();
+      const password = document.getElementById("admin-password").value.trim();
+
+      // Validate input fields are not empty
+      if (!username || !password) {
+        document.getElementById("admin-login-feedback").textContent = "Please fill in both fields.";
+        return;
+      }
+
+      // Retrieve admin credentials from local storage
+      const adminCredentials = JSON.parse(localStorage.getItem("admin_credentials"));
+
+      // Validate admin credentials
+      if (adminCredentials && adminCredentials.username === username && adminCredentials.password === password) {
+        window.location.href = "admin-dashboard.html"; // Redirect to admin dashboard
+      } else {
+        document.getElementById("admin-login-feedback").textContent = "Invalid username or password.";
+      }
+    });
+  });
+</script>
 </body>
 </html>
-
