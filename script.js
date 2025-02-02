@@ -5,7 +5,7 @@ const PURCHASE_REQUESTS_KEY = "purchase_requests";
 const ADMIN_CREDENTIALS_KEY = "admin_credentials";
 
 // Initialize admin credentials
-const ADMIN_CREDENTIALS = { username: "admin", password: "admin123" };
+const ADMIN_CREDENTIALS = { username: "admin", password: "admin1122" };
 if (!localStorage.getItem(ADMIN_CREDENTIALS_KEY)) {
   localStorage.setItem(ADMIN_CREDENTIALS_KEY, JSON.stringify(ADMIN_CREDENTIALS));
 }
