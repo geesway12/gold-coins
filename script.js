@@ -34,13 +34,16 @@ function updateUserList() {
   const userList = document.getElementById("user-list");
   if (userList) {
     userList.innerHTML = users.map(user => `
-      <li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <input type="checkbox" class="user-checkbox" data-user-id="${user.userID}">
         ${user.name} (ID: ${user.userID}) - ${user.active ? 'Active' : 'Inactive'}
-        <button class="btn btn-sm ${user.active ? 'btn-warning' : 'btn-success'}" onclick="toggleUserStatus('${user.userID}')">
-          ${user.active ? 'Deactivate' : 'Reactivate'}
-        </button>
-        <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.userID}')">Delete</button>
-        <button class="btn btn-sm btn-primary" onclick="showAddCoinsForm('${user.userID}')">Add Coins</button>
+        <div>
+          <button class="btn btn-sm ${user.active ? 'btn-warning' : 'btn-success'} me-2" onclick="toggleUserStatus('${user.userID}')">
+            ${user.active ? 'Deactivate' : 'Reactivate'}
+          </button>
+          <button class="btn btn-sm btn-danger me-2" onclick="deleteUser('${user.userID}')">Delete</button>
+          <button class="btn btn-sm btn-primary" onclick="showAddCoinsForm('${user.userID}')">Add Coins</button>
+        </div>
       </li>
     `).join("");
   }
@@ -86,141 +89,98 @@ function showAddCoinsForm(userID) {
   }
 }
 
-// Generate random game outcomes
-function generateGameOutcomes() {
-  const outcomes = [];
-  const winValues = Array.from({ length: 9 }, () => Math.floor(Math.random() * 100) + 10);
-  const loseValues = Array.from({ length: 9 }, () => Math.floor(Math.random() * 100) + 10);
-  const donateValues = Array.from({ length: 9 }, () => Math.floor(Math.random() * 100) + 10);
-  for (let i = 0; i < 9; i++) {
-    outcomes.push({ type: "Win", value: winValues[i] });
-    outcomes.push({ type: "Lose", value: -loseValues[i] });
-    outcomes.push({ type: "Donate", value: -donateValues[i] });
-    outcomes.push({ type: "Bomb", value: 0 });
-  }
-  return outcomes.sort(() => Math.random() - 0.5); // Shuffle outcomes
+// Function to perform bulk actions
+function performBulkAction(action) {
+  const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+  const userIDs = Array.from(checkboxes).map(checkbox => checkbox.getAttribute('data-user-id'));
+  const users = getFromStorage(USERS_KEY);
+
+  userIDs.forEach(userID => {
+    const user = users.find(u => u.userID === userID);
+    if (user) {
+      if (action === 'deactivate') {
+        user.active = false;
+      } else if (action === 'delete') {
+        const index = users.indexOf(user);
+        users.splice(index, 1);
+      }
+    }
+  });
+
+  saveToStorage(USERS_KEY, users);
+  updateUserList();
 }
 
-// Wrap logic in DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
   const currentPage = window.location.pathname;
 
-  // === Admin Login ===
-  if (currentPage.includes("admin-login.html")) {
-    const adminLoginButton = document.getElementById("admin-login-btn");
-    if (adminLoginButton) {
-      adminLoginButton.addEventListener("click", () => {
-        const username = document.getElementById("admin-username").value.trim();
-        const password = document.getElementById("admin-password").value.trim();
-        const credentials = getFromStorage(ADMIN_CREDENTIALS_KEY);
+  // === Register User Page ===
+  if (currentPage.includes("register-user.html")) {
+    document.getElementById("submit-register").addEventListener("click", () => {
+      const fullName = document.getElementById("full-name").value.trim();
+      if (!fullName) {
+        document.getElementById("register-feedback").textContent = "Please enter a valid name.";
+        return;
+      }
 
-        if (credentials.username === username && credentials.password === password) {
-          window.location.href = "admin-dashboard.html"; // Redirect to admin dashboard
-        } else {
-          document.getElementById("admin-login-feedback").textContent = "Invalid username or password.";
-        }
-      });
-    }
-  }
+      const users = getFromStorage(USERS_KEY);
+      const userID = generateUserID();
+      users.push({ userID, name: fullName, balance: 0, active: true });
+      saveToStorage(USERS_KEY, users);
 
-  // === User Login ===
-  if (currentPage.includes("user-login.html")) {
-    const loginButton = document.getElementById("login-btn");
-    if (loginButton) {
-      loginButton.addEventListener("click", () => {
-        const loginCode = document.getElementById("login-code").value.trim();
-        const users = getFromStorage(USERS_KEY);
-        const user = users.find((u) => u.userID === loginCode);
-
-        if (user) {
-          localStorage.setItem("current_user", JSON.stringify(user));
-          window.location.href = "user-game.html";
-        } else {
-          document.getElementById("login-feedback").textContent = "Invalid User Code.";
-        }
-      });
-    }
-  }
-
-  // === Admin Dashboard ===
-  if (currentPage.includes("admin-dashboard.html")) {
-    const registerButton = document.getElementById("register-btn");
-    const addCoinsButton = document.getElementById("add-coins");
-    const viewWithdrawalsButton = document.getElementById("view-withdrawals");
-    const viewPurchaseRequestsButton = document.getElementById("view-purchase-requests");
-
-    if (registerButton) {
-      registerButton.addEventListener("click", () => {
-        document.getElementById("register-form").classList.toggle("hidden");
-        document.getElementById("add-coins-form").classList.add("hidden");
-        document.getElementById("withdrawal-list").classList.add("hidden");
-        document.getElementById("purchase-request-list").classList.add("hidden");
-      });
-
-      document.getElementById("submit-register").addEventListener("click", () => {
-        const fullName = document.getElementById("full-name").value.trim();
-        if (!fullName) {
-          document.getElementById("register-feedback").textContent = "Please enter a valid name.";
-          return;
-        }
-
-        const users = getFromStorage(USERS_KEY);
-        const userID = generateUserID();
-        users.push({ userID, name: fullName, balance: 0, active: true });
-        saveToStorage(USERS_KEY, users);
-
-        document.getElementById("register-feedback").textContent = `User registered! ID: ${userID}`;
-        document.getElementById("full-name").value = "";
-        updateUserList(); // Update the user list display
-      });
-    }
-
-    if (addCoinsButton) {
-      addCoinsButton.addEventListener("click", () => {
-        document.getElementById("add-coins-form").classList.toggle("hidden");
-        document.getElementById("register-form").classList.add("hidden");
-        document.getElementById("withdrawal-list").classList.add("hidden");
-        document.getElementById("purchase-request-list").classList.add("hidden");
-      });
-
-      document.getElementById("submit-add-coins").addEventListener("click", () => {
-        const userID = document.getElementById("add-coins-user-code").value.trim();
-        const amount = parseInt(document.getElementById("add-coins-amount").value, 10);
-        const users = getFromStorage(USERS_KEY);
-        const user = users.find((u) => u.userID === userID);
-
-        if (!user || isNaN(amount) || amount <= 0) {
-          document.getElementById("add-coins-feedback").textContent = "Invalid user ID or amount.";
-          return;
-        }
-
-        user.balance += amount;
-        saveToStorage(USERS_KEY, users);
-
-        document.getElementById("add-coins-feedback").textContent = `Added ${amount} coins to ${userID}.`;
-      });
-    }
-
-    if (viewWithdrawalsButton) {
-      viewWithdrawalsButton.addEventListener("click", () => {
-        document.getElementById("withdrawal-list").classList.toggle("hidden");
-        document.getElementById("register-form").classList.add("hidden");
-        document.getElementById("add-coins-form").classList.add("hidden");
-        document.getElementById("purchase-request-list").classList.add("hidden");
-      });
-    }
-
-    if (viewPurchaseRequestsButton) {
-      viewPurchaseRequestsButton.addEventListener("click", () => {
-        document.getElementById("purchase-request-list").classList.toggle("hidden");
-        document.getElementById("register-form").classList.add("hidden");
-        document.getElementById("add-coins-form").classList.add("hidden");
-        document.getElementById("withdrawal-list").classList.add("hidden");
-      });
-    }
+      document.getElementById("register-feedback").textContent = `User registered! ID: ${userID}`;
+      document.getElementById("full-name").value = "";
+      updateUserList(); // Update the user list display
+    });
 
     // Initial update of the user list display
     updateUserList();
+  }
+
+  // === View Withdrawals Page ===
+  if (currentPage.includes("view-withdrawals.html")) {
+    const withdrawals = getFromStorage(TRANSACTIONS_KEY).filter((t) => t.type === "Withdrawal");
+    const users = getFromStorage(USERS_KEY);
+    const withdrawalList = document.getElementById("withdrawal-list");
+    withdrawalList.innerHTML = withdrawals.length
+      ? withdrawals
+          .map((t, index) => {
+            const user = users.find((u) => u.userID === t.userID);
+            return `<p>${user.name} (ID: ${t.userID}) requested ${t.amount} coins 
+              <button class="btn btn-success btn-sm" onclick="approveWithdrawal(${index})">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="declineWithdrawal(${index})">Decline</button>
+            </p>`;
+          })
+          .join("")
+      : "<p>No withdrawal requests.</p>";
+  }
+
+  // === View Purchase Requests Page ===
+  if (currentPage.includes("view-purchase-requests.html")) {
+    const purchaseRequests = getFromStorage(PURCHASE_REQUESTS_KEY);
+    const users = getFromStorage(USERS_KEY);
+    const purchaseRequestList = document.getElementById("purchase-request-list");
+    purchaseRequestList.innerHTML = purchaseRequests.length
+      ? purchaseRequests
+          .map((request, index) => {
+            const user = users.find((u) => u.userID === request.userID);
+            return `<p>${user.name} (ID: ${request.userID}) requested ${request.amount} coins 
+              <button class="btn btn-success btn-sm" onclick="approvePurchase(${index})">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="declinePurchase(${index})">Decline</button>
+            </p>`;
+          })
+          .join("")
+      : "<p>No purchase requests.</p>";
+  }
+
+  // === View Registered Users Page ===
+  if (currentPage.includes("view-registered-users.html")) {
+    // Initial update of the user list display
+    updateUserList();
+
+    // Bulk actions
+    document.getElementById("bulk-deactivate").addEventListener("click", () => performBulkAction('deactivate'));
+    document.getElementById("bulk-delete").addEventListener("click", () => performBulkAction('delete'));
   }
 
   // === User Game ===
@@ -336,91 +296,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("tap-to-win").disabled = false;
       }, 120000); // 2 minutes
     }, 60000); // 60 seconds
-  }
-
-  // === Register User Page ===
-  if (currentPage.includes("register-user.html")) {
-    document.getElementById("submit-register").addEventListener("click", () => {
-      const fullName = document.getElementById("full-name").value.trim();
-      if (!fullName) {
-        document.getElementById("register-feedback").textContent = "Please enter a valid name.";
-        return;
-      }
-
-      const users = getFromStorage(USERS_KEY);
-      const userID = generateUserID();
-      users.push({ userID, name: fullName, balance: 0, active: true });
-      saveToStorage(USERS_KEY, users);
-
-      document.getElementById("register-feedback").textContent = `User registered! ID: ${userID}`;
-      document.getElementById("full-name").value = "";
-      updateUserList(); // Update the user list display
-    });
-
-    // Initial update of the user list display
-    updateUserList();
-  }
-
-  // === Add Coins Page ===
-  if (currentPage.includes("add-coins.html")) {
-    document.getElementById("submit-add-coins").addEventListener("click", () => {
-      const userID = document.getElementById("add-coins-user-code").value.trim();
-      const amount = parseInt(document.getElementById("add-coins-amount").value, 10);
-      const users = getFromStorage(USERS_KEY);
-      const user = users.find((u) => u.userID === userID);
-
-      if (!user || isNaN(amount) || amount <= 0) {
-        document.getElementById("add-coins-feedback").textContent = "Invalid user ID or amount.";
-        return;
-      }
-
-      user.balance += amount;
-      saveToStorage(USERS_KEY, users);
-
-      document.getElementById("add-coins-feedback").textContent = `Added ${amount} coins to ${user.name} (ID: ${userID}).`;
-    });
-  }
-
-  // === View Withdrawals Page ===
-  if (currentPage.includes("view-withdrawals.html")) {
-    const withdrawals = getFromStorage(TRANSACTIONS_KEY).filter((t) => t.type === "Withdrawal");
-    const users = getFromStorage(USERS_KEY);
-    const withdrawalList = document.getElementById("withdrawal-list");
-    withdrawalList.innerHTML = withdrawals.length
-      ? withdrawals
-          .map((t, index) => {
-            const user = users.find((u) => u.userID === t.userID);
-            return `<p>${user.name} (ID: ${t.userID}) requested ${t.amount} coins 
-              <button class="btn btn-success btn-sm" onclick="approveWithdrawal(${index})">Approve</button>
-              <button class="btn btn-danger btn-sm" onclick="declineWithdrawal(${index})">Decline</button>
-            </p>`;
-          })
-          .join("")
-      : "<p>No withdrawal requests.</p>";
-  }
-
-  // === View Purchase Requests Page ===
-  if (currentPage.includes("view-purchase-requests.html")) {
-    const purchaseRequests = getFromStorage(PURCHASE_REQUESTS_KEY);
-    const users = getFromStorage(USERS_KEY);
-    const purchaseRequestList = document.getElementById("purchase-request-list");
-    purchaseRequestList.innerHTML = purchaseRequests.length
-      ? purchaseRequests
-          .map((request, index) => {
-            const user = users.find((u) => u.userID === request.userID);
-            return `<p>${user.name} (ID: ${request.userID}) requested ${request.amount} coins 
-              <button class="btn btn-success btn-sm" onclick="approvePurchase(${index})">Approve</button>
-              <button class="btn btn-danger btn-sm" onclick="declinePurchase(${index})">Decline</button>
-            </p>`;
-          })
-          .join("")
-      : "<p>No purchase requests.</p>";
-  }
-
-  // === View Registered Users Page ===
-  if (currentPage.includes("view-registered-users.html")) {
-    // Initial update of the user list display
-    updateUserList();
   }
 
   // Approve and Decline functions for admin dashboard

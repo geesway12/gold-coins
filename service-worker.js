@@ -7,7 +7,11 @@ const urlsToCache = [
   '/user-login.html',
   '/admin-login.html',
   '/user-game.html',
-  '/admin-dashboard.html'
+  '/admin-dashboard.html',
+  '/register-user.html',
+  '/view-withdrawals.html',
+  '/view-purchase-requests.html',
+  '/view-registered-users.html'
 ];
 
 // Install Service Worker and Cache Files
@@ -24,13 +28,13 @@ self.addEventListener('install', event => {
 
 // Activate and Clean Up Old Caches
 self.addEventListener('activate', event => {
+  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            console.log('Deleting old cache:', cache);
-            return caches.delete(cache);
+        cacheNames.map(cacheName => {
+          if (!cacheWhitelist.includes(cacheName)) {
+            return caches.delete(cacheName);
           }
         })
       );
@@ -38,21 +42,16 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch Event to Serve Cached Files or Fallback to Network
+// Fetch and Serve Cached Files
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(response => {
-      if (response) return response;
-
-      // Avoid caching requests for "favicon.ico"
-      if (event.request.url.endsWith('favicon.ico')) {
-        return fetch(event.request);
-      }
-
-      return fetch(event.request).catch(error => {
-        console.error('Fetch failed:', error);
-        throw error;
-      });
-    })
+    caches.match(event.request)
+      .then(response => {
+        if (response) {
+          return response; // Return cached file
+        }
+        return fetch(event.request); // Fetch from network if not cached
+      })
+      .catch(error => console.error('Fetch failed:', error))
   );
 });

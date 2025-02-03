@@ -10,8 +10,12 @@
 <body>
   <div class="container text-center my-5">
     <h1>Registered Users</h1>
+    <div id="bulk-actions" class="mb-3">
+      <button id="bulk-deactivate" class="btn btn-warning">Deactivate Selected</button>
+      <button id="bulk-delete" class="btn btn-danger">Delete Selected</button>
+    </div>
     <div id="user-list-container" class="mt-4">
-      <ul id="user-list"></ul>
+      <ul id="user-list" class="list-group"></ul>
     </div>
     <a href="admin-dashboard.html" class="btn btn-secondary mt-3">Back to Dashboard</a>
   </div>

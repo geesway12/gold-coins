@@ -31,6 +31,43 @@ body {
   margin-top: 100px;
 }
 
+/* Styles for the user list container */
+#user-list-container {
+  max-height: 400px; /* Set a maximum height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-top: 20px;
+}
+
+/* Styles for the user list items */
+#user-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#user-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+#user-list li div {
+  display: flex;
+  gap: 10px; /* Add space between buttons */
+}
+
+/* Bulk actions container */
+#bulk-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 /* Form control styles */
 .form-control {
   background-color: #e6eaec; /* Light grey background */
