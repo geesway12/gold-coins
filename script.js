@@ -114,6 +114,43 @@ function performBulkAction(action) {
 document.addEventListener("DOMContentLoaded", () => {
   const currentPage = window.location.pathname;
 
+  // === Admin Login ===
+  if (currentPage.includes("admin-login.html")) {
+    const adminLoginButton = document.getElementById("admin-login-btn");
+    if (adminLoginButton) {
+      adminLoginButton.addEventListener("click", () => {
+        const username = document.getElementById("admin-username").value.trim();
+        const password = document.getElementById("admin-password").value.trim();
+        const credentials = getFromStorage(ADMIN_CREDENTIALS_KEY);
+
+        if (credentials.username === username && credentials.password === password) {
+          window.location.href = "admin-dashboard.html"; // Redirect to admin dashboard
+        } else {
+          document.getElementById("admin-login-feedback").textContent = "Invalid username or password.";
+        }
+      });
+    }
+  }
+
+  // === User Login ===
+  if (currentPage.includes("user-login.html")) {
+    const loginButton = document.getElementById("login-btn");
+    if (loginButton) {
+      loginButton.addEventListener("click", () => {
+        const loginCode = document.getElementById("login-code").value.trim();
+        const users = getFromStorage(USERS_KEY);
+        const user = users.find((u) => u.userID === loginCode);
+
+        if (user) {
+          localStorage.setItem("current_user", JSON.stringify(user));
+          window.location.href = "user-game.html";
+        } else {
+          document.getElementById("login-feedback").textContent = "Invalid User Code.";
+        }
+      });
+    }
+  }
+
   // === Register User Page ===
   if (currentPage.includes("register-user.html")) {
     document.getElementById("submit-register").addEventListener("click", () => {
