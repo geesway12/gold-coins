@@ -9,8 +9,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  padding-top: 100px;
+  min-height: 100vh;
+  padding-top: 20px;
 }
 
 /* Central alignment container */
@@ -19,16 +19,15 @@ body {
   margin: auto;
   padding: 20px;
   margin-top: 50px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Login container specific styles */
 .login-container {
   max-width: 400px;
-  padding: 30px;
-  background-color: #fff; /* White background */
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Light shadow */
-  margin-top: 100px;
+  margin: auto;
 }
 
 /* Styles for the user list container */
@@ -215,4 +214,45 @@ body {
 /* Hidden class */
 .hidden {
   display: none;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .container {
+    width: 90%;
+    padding: 10px;
+  }
+
+  #user-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #user-list li div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  #bulk-actions {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    width: 100%;
+    padding: 5px;
+  }
+
+  #user-list li {
+    padding: 5px;
+  }
+
+  #user-list li div {
+    flex-direction: column;
+    gap: 5px;
+  }
 }
