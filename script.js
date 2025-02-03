@@ -33,7 +33,56 @@ function updateUserList() {
   const users = getFromStorage(USERS_KEY);
   const userList = document.getElementById("user-list");
   if (userList) {
-    userList.innerHTML = users.map(user => `<li>${user.name} (ID: ${user.userID})</li>`).join("");
+    userList.innerHTML = users.map(user => `
+      <li>
+        ${user.name} (ID: ${user.userID}) - ${user.active ? 'Active' : 'Inactive'}
+        <button class="btn btn-sm ${user.active ? 'btn-warning' : 'btn-success'}" onclick="toggleUserStatus('${user.userID}')">
+          ${user.active ? 'Deactivate' : 'Reactivate'}
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.userID}')">Delete</button>
+        <button class="btn btn-sm btn-primary" onclick="showAddCoinsForm('${user.userID}')">Add Coins</button>
+      </li>
+    `).join("");
+  }
+}
+
+// Function to toggle user status
+function toggleUserStatus(userID) {
+  const users = getFromStorage(USERS_KEY);
+  const user = users.find(u => u.userID === userID);
+  if (user) {
+    user.active = !user.active;
+    saveToStorage(USERS_KEY, users);
+    updateUserList();
+  }
+}
+
+// Function to delete a user
+function deleteUser(userID) {
+  let users = getFromStorage(USERS_KEY);
+  users = users.filter(u => u.userID !== userID);
+  saveToStorage(USERS_KEY, users);
+  updateUserList();
+}
+
+// Function to show the add coins form
+function showAddCoinsForm(userID) {
+  const amount = parseInt(prompt("Enter amount of coins to add:"), 10);
+  if (isNaN(amount) || amount <= 0) {
+    alert("Invalid amount.");
+    return;
+  }
+
+  const users = getFromStorage(USERS_KEY);
+  const user = users.find((u) => u.userID === userID);
+
+  if (user) {
+    user.balance += amount;
+    saveToStorage(USERS_KEY, users);
+    alert(`Added ${amount} coins to ${user.name} (ID: ${userID}).`);
+    updateUserList();
+  } else {
+    alert("User not found.");
   }
 }
 
@@ -117,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const users = getFromStorage(USERS_KEY);
         const userID = generateUserID();
-        users.push({ userID, name: fullName, balance: 0 });
+        users.push({ userID, name: fullName, balance: 0, active: true });
         saveToStorage(USERS_KEY, users);
 
         document.getElementById("register-feedback").textContent = `User registered! ID: ${userID}`;
@@ -300,7 +349,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const users = getFromStorage(USERS_KEY);
       const userID = generateUserID();
-      users.push({ userID, name: fullName, balance: 0 });
+      users.push({ userID, name: fullName, balance: 0, active: true });
       saveToStorage(USERS_KEY, users);
 
       document.getElementById("register-feedback").textContent = `User registered! ID: ${userID}`;
@@ -328,23 +377,24 @@ document.addEventListener("DOMContentLoaded", () => {
       user.balance += amount;
       saveToStorage(USERS_KEY, users);
 
-      document.getElementById("add-coins-feedback").textContent = `Added ${amount} coins to ${userID}.`;
+      document.getElementById("add-coins-feedback").textContent = `Added ${amount} coins to ${user.name} (ID: ${userID}).`;
     });
   }
 
   // === View Withdrawals Page ===
   if (currentPage.includes("view-withdrawals.html")) {
     const withdrawals = getFromStorage(TRANSACTIONS_KEY).filter((t) => t.type === "Withdrawal");
+    const users = getFromStorage(USERS_KEY);
     const withdrawalList = document.getElementById("withdrawal-list");
     withdrawalList.innerHTML = withdrawals.length
       ? withdrawals
-          .map(
-            (t, index) =>
-              `<p>${t.userID} requested ${t.amount} coins 
-                <button class="btn btn-success btn-sm" onclick="approveWithdrawal(${index})">Approve</button>
-                <button class="btn btn-danger btn-sm" onclick="declineWithdrawal(${index})">Decline</button>
-              </p>`
-          )
+          .map((t, index) => {
+            const user = users.find((u) => u.userID === t.userID);
+            return `<p>${user.name} (ID: ${t.userID}) requested ${t.amount} coins 
+              <button class="btn btn-success btn-sm" onclick="approveWithdrawal(${index})">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="declineWithdrawal(${index})">Decline</button>
+            </p>`;
+          })
           .join("")
       : "<p>No withdrawal requests.</p>";
   }
@@ -352,18 +402,25 @@ document.addEventListener("DOMContentLoaded", () => {
   // === View Purchase Requests Page ===
   if (currentPage.includes("view-purchase-requests.html")) {
     const purchaseRequests = getFromStorage(PURCHASE_REQUESTS_KEY);
+    const users = getFromStorage(USERS_KEY);
     const purchaseRequestList = document.getElementById("purchase-request-list");
     purchaseRequestList.innerHTML = purchaseRequests.length
       ? purchaseRequests
-          .map(
-            (request, index) =>
-              `<p>${request.userID} requested ${request.amount} coins 
-                <button class="btn btn-success btn-sm" onclick="approvePurchase(${index})">Approve</button>
-                <button class="btn btn-danger btn-sm" onclick="declinePurchase(${index})">Decline</button>
-              </p>`
-          )
+          .map((request, index) => {
+            const user = users.find((u) => u.userID === request.userID);
+            return `<p>${user.name} (ID: ${request.userID}) requested ${request.amount} coins 
+              <button class="btn btn-success btn-sm" onclick="approvePurchase(${index})">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="declinePurchase(${index})">Decline</button>
+            </p>`;
+          })
           .join("")
       : "<p>No purchase requests.</p>";
+  }
+
+  // === View Registered Users Page ===
+  if (currentPage.includes("view-registered-users.html")) {
+    // Initial update of the user list display
+    updateUserList();
   }
 
   // Approve and Decline functions for admin dashboard
