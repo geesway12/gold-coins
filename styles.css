@@ -1,0 +1,181 @@
+/* General body styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f0f0; /* Light grey background */
+  color: #333; /* Dark grey text */
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding-top: 100px;
+}
+
+/* Central alignment container */
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  margin-top: 50px;
+}
+
+/* Login container specific styles */
+.login-container {
+  max-width: 400px;
+  padding: 30px;
+  background-color: #fff; /* White background */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Light shadow */
+  margin-top: 100px;
+}
+
+/* Form control styles */
+.form-control {
+  background-color: #e6eaec; /* Light grey background */
+  color: #333; /* Dark grey text */
+  border: 1px solid #ccc; /* Light grey border */
+}
+
+.form-control:focus {
+  background-color: #e6eaec; /* Light grey background */
+  color: #333; /* Dark grey text */
+  border-color: #007bff; /* Blue border on focus */
+}
+
+/* Card styles */
+.card {
+  width: 200px;
+  height: 300px;
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  position: relative;
+  margin: 0 auto;
+}
+
+.card.revealed {
+  transform: rotateY(180deg);
+}
+
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+}
+
+.card::before {
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card::after {
+  background-color: #4caf50;
+  color: #fff;
+  transform: rotateY(180deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Button styles */
+.btn {
+  font-weight: bold;
+}
+
+.btn-outline-light {
+  background-color: #fff; /* White */
+  border-color: #ccc; /* Light grey border */
+  color: #333; /* Dark grey text */
+}
+
+.btn-outline-light:hover {
+  background-color: #f0f0f0; /* Light grey */
+  border-color: #999; /* Medium grey border */
+}
+
+.btn-outline-success {
+  background-color: #ccc; /* Light grey */
+  border-color: #999; /* Medium grey border */
+  color: #333; /* Dark grey text */
+}
+
+.btn-outline-success:hover {
+  background-color: #999; /* Medium grey */
+  border-color: #666; /* Dark grey border */
+}
+
+.btn-outline-danger {
+  background-color: #999; /* Medium grey */
+  border-color: #666; /* Dark grey border */
+  color: #fff; /* White text */
+}
+
+.btn-outline-danger:hover {
+  background-color: #666; /* Dark grey */
+  border-color: #333; /* Darker grey border */
+}
+
+.btn-outline-warning {
+  background-color: #ffeb3b; /* Yellow */
+  border-color: #ffeb3b;
+  color: #333; /* Dark grey text */
+}
+
+.btn-outline-warning:hover {
+  background-color: #fdd835; /* Darker yellow */
+  border-color: #fdd835;
+}
+
+.btn-outline-info {
+  background-color: #03a9f4; /* Light blue */
+  border-color: #03a9f4;
+  color: #fff; /* White text */
+}
+
+.btn-outline-info:hover {
+  background-color: #0288d1; /* Darker blue */
+  border-color: #0288d1;
+}
+
+.btn-primary {
+  background-color: #666; /* Medium grey */
+  border-color: #666;
+  color: #fff; /* White text */
+}
+
+.btn-primary:hover {
+  background-color: #333; /* Dark grey */
+  border-color: #333;
+}
+
+.btn-dark {
+  background-color: #666; /* Medium grey */
+  border-color: #666;
+  color: #fff; /* White text */
+}
+
+.btn-dark:hover {
+  background-color: #333; /* Dark grey */
+  border-color: #333;
+}
+
+/* Hidden class */
+.hidden {
+  display: none;
+}
