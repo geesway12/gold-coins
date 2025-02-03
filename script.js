@@ -200,9 +200,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       currentUser.balance -= 10;
       const outcome = outcomes[Math.floor(Math.random() * outcomes.length)];
-      document.getElementById("game-outcome").textContent = `Outcome: ${outcome.value}`;
+      let outcomeText = "";
 
-      if (outcome.type === "Win") currentUser.balance += outcome.value;
+      switch (outcome.type) {
+        case "Win":
+          outcomeText = `You won ${outcome.value}!`;
+          currentUser.balance += outcome.value;
+          break;
+        case "Lose":
+          outcomeText = `You lost ${-outcome.value}!`;
+          break;
+        case "Donate":
+          outcomeText = `You've donated ${-outcome.value}!`;
+          break;
+        case "Bomb":
+          outcomeText = "Bomb!";
+          break;
+      }
+
+      document.getElementById("game-outcome").textContent = outcomeText;
 
       currentUser.balance = Math.max(0, currentUser.balance); // Prevent negative balance
       localStorage.setItem("current_user", JSON.stringify(currentUser));
